@@ -43,14 +43,7 @@ const Users = () => {
               justifyContent: "center",
             }}
           >
-            <Text
-              onPress={() =>
-                router.push({
-                  pathname: "/chat",
-                  params: { receiverId: item.id },
-                })
-              }
-            >
+            <Text onPress={() => router.push(`/chat/${item.id}`)}>
               {item.username}
             </Text>
           </View>

@@ -15,7 +15,12 @@ const Login = () => {
   };
 
   return (
-    <View>
+    <View
+      style={{
+        borderWidth: 1,
+        padding: 80,
+      }}
+    >
       <TextInput
         onChangeText={setUsername}
         value={userName}
@@ -27,7 +32,13 @@ const Login = () => {
           padding: 10,
         }}
       />
-      <Button title="Go" onPress={handleRegister} />
+      <View
+        style={{
+          width: 300,
+        }}
+      >
+        <Button title="Go" onPress={handleRegister} />
+      </View>
     </View>
   );
 };
