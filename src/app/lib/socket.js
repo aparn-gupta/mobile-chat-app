@@ -14,7 +14,7 @@ const createSocket = () => {
   return socket;
 };
 
-export const connectSocket = () => {
+export const connectSocket = (user) => {
   const s = createSocket();
 
   s.on("connect", () => {
@@ -26,6 +26,7 @@ export const connectSocket = () => {
     s.on("connect", () => {
       console.log("socket connected" + s.id);
     });
+    s.emit("register", user);
   }
 
   return s;

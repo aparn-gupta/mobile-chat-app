@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, View, Text } from "react-native";
+import { useRouter } from "expo-router";
 // import "./app.css";
 
 type Users = {
@@ -12,6 +13,8 @@ const Users = () => {
   const [usersList, setUsersList] = useState<Users[]>([]);
 
   const url = `http://localhost:3001/list`;
+
+  const router = useRouter();
 
   useEffect(() => {
     fetch(url)
@@ -40,7 +43,16 @@ const Users = () => {
               justifyContent: "center",
             }}
           >
-            <Text> {item.username}</Text>
+            <Text
+              onPress={() =>
+                router.push({
+                  pathname: "/chat",
+                  params: { receiverId: item.id },
+                })
+              }
+            >
+              {item.username}
+            </Text>
           </View>
         );
       })}
