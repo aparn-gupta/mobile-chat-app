@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useRouter } from "expo-router";
+import { getCurrentUser } from "./lib/currentUser";
 // import "./app.css";
 
 type Users = {
@@ -28,6 +29,18 @@ const Users = () => {
 
   return (
     <ScrollView>
+      <View
+        style={{
+          padding: 16,
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Text style={{ color: "teal", fontWeight: 600 }}>
+          {getCurrentUser()}{" "}
+        </Text>
+      </View>
       {usersList.map((item, i) => {
         return (
           <View
@@ -43,7 +56,7 @@ const Users = () => {
               justifyContent: "center",
             }}
           >
-            <Text onPress={() => router.push(`/chat/${item.id}`)}>
+            <Text onPress={() => router.push(`/chat/${item.username}`)}>
               {item.username}
             </Text>
           </View>
