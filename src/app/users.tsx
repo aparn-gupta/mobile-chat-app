@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ScrollView, View, Text, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { getCurrentUser } from "./lib/currentUser";
+import { serverName } from "./login";
 
 // import "./app.css";
 
@@ -14,7 +15,7 @@ type Users = {
 const Users = () => {
   const [usersList, setUsersList] = useState<Users[]>([]);
 
-  const url = `http://localhost:3001/list`;
+  const url = serverName;
 
   const router = useRouter();
 

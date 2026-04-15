@@ -14,9 +14,9 @@ export default function RootLayout() {
             }}
           >
             <Image
-              // source={require("../chat-logo.avif")}
               source={{
-                uri: "https://img.freepik.com/premium-vector/chat-logo-design_93835-108.jpg",
+                // uri: "https://img.freepik.com/premium-vector/chat-logo-design_93835-108.jpg",
+                uri: "https://freepngimg.com/png/159738-photos-speech-chat-icon-free-hd-image",
               }}
               style={{
                 height: 30,

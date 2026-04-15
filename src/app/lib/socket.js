@@ -2,9 +2,12 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
+let socketAddress = "https://mychatapp-ntgv.onrender.com";
+// let socketAddress = "http://localhost:3000";
+
 const createSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:3000", {
+    socket = io(socketAddress, {
       reconnection: true,
       reconnectionAttempts: 3,
       reconnectionDelay: 1000,

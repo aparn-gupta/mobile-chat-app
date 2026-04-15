@@ -5,7 +5,9 @@ import { useRouter } from "expo-router";
 import { setCurrentUser } from "./lib/currentUser";
 import { useWindowDimensions } from "react-native";
 
-export const serverName = "http://localhost:3001";
+// export const serverName = "http://localhost:3001";
+export const serverName =
+  "https://mychat-app-aparnas-projects-5f64a891.vercel.app";
 
 const Login = () => {
   const [username, setUsername] = useState("");
