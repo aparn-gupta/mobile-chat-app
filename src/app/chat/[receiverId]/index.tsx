@@ -11,6 +11,8 @@ import { connectSocket } from "../../lib/socket";
 import { Button } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { getCurrentUser } from "@/app/lib/currentUser";
+import { useWindowDimensions } from "react-native";
+
 // import { SendHorizontal } from "lucide-react-native";
 
 export default function Index() {
@@ -18,6 +20,8 @@ export default function Index() {
   // const [receivedMessage, setRecievedMessage] = useState("");
 
   const { receiverId } = useLocalSearchParams();
+
+  const { height } = useWindowDimensions();
 
   console.log("messaging user: " + receiverId);
 
@@ -34,6 +38,10 @@ export default function Index() {
     let s = connectSocket();
 
     s.on("receiveMesssage", (data: string) => {
+      const notificationSound = new Audio("/notification.mp3");
+
+      notificationSound.play();
+
       console.log("Recieved Message" + data);
       setAllMessages((prev) => [...prev, { rec: data }]);
     });
@@ -59,48 +67,54 @@ export default function Index() {
   return (
     <View
       style={{
-        padding: 60,
+        padding: 8,
+        backgroundColor: "#E8F3DC",
       }}
     >
-      <Text
+      {/* <Text
         style={{
-          marginBottom: 30,
+          marginBottom: 0,
         }}
       >
         Hello
-      </Text>
+      </Text> */}
 
-      <ScrollView
+      <View
         style={{
-          padding: 10,
+          padding: 16,
           width: "100%",
-          backgroundColor: "beige",
-          marginTop: 100,
-          minHeight: 100,
+          height: height * 0.85,
+          backgroundColor: "#E8F3DC",
+          borderRadius: 20,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
-        {allMessages.map((item, i) => {
-          return (
-            <View
-              key={i}
-              style={{
-                padding: 10,
-                backgroundColor: item.rec ? "pink" : "lightblue",
-                borderRadius: 10,
-                marginBottom: 20,
+        <ScrollView>
+          {allMessages.map((item, i) => {
+            return (
+              <View
+                key={i}
+                style={{
+                  padding: 10,
+                  backgroundColor: item.rec ? "pink" : "lightblue",
+                  borderRadius: 10,
+                  marginBottom: 20,
+                  width: "75%",
 
-                alignSelf: item.rec ? "flex-start" : "flex-end",
-              }}
-            >
-              <Text> {item.rec || item.sent}</Text>
-            </View>
-          );
-        })}
+                  alignSelf: item.rec ? "flex-start" : "flex-end",
+                }}
+              >
+                <Text> {item.rec || item.sent}</Text>
+              </View>
+            );
+          })}
+        </ScrollView>
 
         <View
           style={{
             height: 30,
-            width: 200,
+            width: "100%",
             marginBottom: 10,
             display: "flex",
             flexDirection: "row",
@@ -111,11 +125,13 @@ export default function Index() {
             onChangeText={setUserMessage}
             value={userMessage}
             style={{
-              height: 56,
-              width: 300,
-              borderColor: "green",
-              borderWidth: 1,
-              padding: 10,
+              height: 48,
+              width: "90%",
+              backgroundColor: "#fff",
+              borderRadius: 10,
+              // borderColor: "green",
+              // borderWidth: 1,
+              padding: 24,
             }}
           />
 
@@ -140,10 +156,10 @@ export default function Index() {
               marginLeft: 10,
             }}
           >
-            <Button title="Send" onPress={sendMessage} color={"purple"} />
+            <Button title="Send" onPress={sendMessage} color={"#01B949"} />
           </View>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }

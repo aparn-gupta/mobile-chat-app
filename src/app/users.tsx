@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text } from "react-native";
+import { ScrollView, View, Text, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { getCurrentUser } from "./lib/currentUser";
+
 // import "./app.css";
 
 type Users = {
@@ -28,7 +29,7 @@ const Users = () => {
   }, []);
 
   return (
-    <ScrollView>
+    <View>
       <View
         style={{
           padding: 16,
@@ -37,32 +38,38 @@ const Users = () => {
           justifyContent: "flex-end",
         }}
       >
-        <Text style={{ color: "teal", fontWeight: 600 }}>
+        <Text style={{ color: "#015C00", fontWeight: 600 }}>
           {getCurrentUser()}{" "}
         </Text>
       </View>
-      {usersList.map((item, i) => {
-        return (
-          <View
-            key={i}
-            className="user"
-            style={{
-              height: 48,
-              backgroundColor: "pink",
-              width: "100%",
-              borderColor: "#fff",
-              borderWidth: 1,
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <Text onPress={() => router.push(`/chat/${item.username}`)}>
-              {item.username}
-            </Text>
-          </View>
-        );
-      })}
-    </ScrollView>
+
+      <ScrollView style={{ padding: 5, borderRadius: 16 }}>
+        {usersList.map((item, i) => {
+          return (
+            <Pressable
+              key={i}
+              className="user"
+              style={({ pressed }) => ({
+                height: 48,
+                color: pressed ? "#fff" : "black",
+
+                backgroundColor: pressed ? "#82B640" : "#E8F3DC",
+                width: "100%",
+                borderColor: "#fff",
+                borderWidth: 1,
+                display: "flex",
+                justifyContent: "center",
+                padding: 6,
+              })}
+            >
+              <Text onPress={() => router.push(`/chat/${item.username}`)}>
+                {item.username}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 };
 

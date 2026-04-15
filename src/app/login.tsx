@@ -3,6 +3,7 @@ import { View, TextInput, Button, Text } from "react-native";
 import { connectSocket } from "./lib/socket";
 import { useRouter } from "expo-router";
 import { setCurrentUser } from "./lib/currentUser";
+import { useWindowDimensions } from "react-native";
 
 export const serverName = "http://localhost:3001";
 
@@ -12,6 +13,8 @@ const Login = () => {
   const [error, setError] = useState();
 
   const router = useRouter();
+
+  const { width, height } = useWindowDimensions();
 
   console.log(username, password);
 
@@ -40,47 +43,60 @@ const Login = () => {
   return (
     <View
       style={{
-        borderWidth: 1,
-        padding: 80,
+        padding: 6,
       }}
     >
-      <Text style={{ color: "red", padding: 16 }}>{error?.toString()}</Text>
-      <TextInput
-        onChangeText={setUsername}
-        value={username}
-        placeholder="Username"
-        style={{
-          height: 56,
-          width: 300,
-          borderColor: "green",
-          borderWidth: 1,
-          padding: 10,
-          borderRadius: 8,
-          margin: 10,
-        }}
-      />
-
-      <TextInput
-        onChangeText={setPassword}
-        value={password}
-        placeholder="Password"
-        style={{
-          height: 56,
-          width: 300,
-          borderColor: "green",
-          borderWidth: 1,
-          padding: 10,
-          borderRadius: 8,
-          margin: 10,
-        }}
-      />
       <View
         style={{
-          width: 300,
-          margin: 10,
+          backgroundColor: "",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: height,
+          width: width,
         }}
       >
-        <Button title="Go" onPress={handleRegister} />
+        <Text style={{ color: "red", padding: 16 }}>{error?.toString()}</Text>
+        <View style={{ width: "80%", height: "30%", backgroundColor: "" }}>
+          <TextInput
+            onChangeText={setUsername}
+            value={username}
+            placeholder="Username"
+            style={{
+              height: 56,
+              width: 300,
+              borderColor: "green",
+              borderWidth: 1,
+              padding: 10,
+              borderRadius: 8,
+              margin: 10,
+            }}
+          />
+
+          <TextInput
+            onChangeText={setPassword}
+            value={password}
+            placeholder="Password"
+            style={{
+              height: 56,
+              width: 300,
+              borderColor: "green",
+              borderWidth: 1,
+              padding: 10,
+              borderRadius: 8,
+              margin: 10,
+            }}
+          />
+
+          <View
+            style={{
+              width: 300,
+              margin: 10,
+            }}
+          >
+            <Button title="Go" onPress={handleRegister} color={"#016F01"} />
+          </View>
+        </View>
       </View>
     </View>
   );
