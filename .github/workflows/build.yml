@@ -35,3 +35,13 @@ jobs:
         with:
           name: android-build
           path: ./*.apk
+
+    # ADD THIS STEP BELOW 👇
+      - name: 🔧 Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🚀 Build APK (Local)
+        run: eas build --platform android --profile preview --local --non-interactive
