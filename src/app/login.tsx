@@ -1,9 +1,16 @@
-import React, { useState } from "react";
-import { View, TextInput, Button, Text } from "react-native";
-import { connectSocket } from "./lib/socket";
 import { useRouter } from "expo-router";
+import * as secureStore from "expo-secure-store";
+import React, { useState } from "react";
+import {
+  Button,
+  Platform,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { setCurrentUser } from "./lib/currentUser";
-import { useWindowDimensions } from "react-native";
+import { connectSocket } from "./lib/socket";
 
 export const serverName = "http://localhost:3000";
 // export const serverName =
@@ -42,7 +49,11 @@ const Login = () => {
 
       connectSocket(username);
       setCurrentUser(username);
-      sessionStorage.setItem("user", username);
+
+      Platform.OS == "web"
+        ? sessionStorage.setItem("user", username)
+        : secureStore.setItemAsync("user", username);
+
       router.push("/users");
     } catch (err: any) {
       console.error(err);

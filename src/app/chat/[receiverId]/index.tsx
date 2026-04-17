@@ -1,18 +1,18 @@
-import {
-  Text,
-  View,
-  StyleSheet,
-  TextInput,
-  ScrollView,
-  Pressable,
-} from "react-native";
-import { useState, useEffect } from "react";
-import { connectSocket } from "../../lib/socket";
-import { Button } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { getCurrentUser } from "@/app/lib/currentUser";
-import { useWindowDimensions } from "react-native";
 import { serverName } from "@/app/login";
+import { useLocalSearchParams } from "expo-router";
+import * as secureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { connectSocket } from "../../lib/socket";
 
 // import { SendHorizontal } from "lucide-react-native";
 
@@ -24,7 +24,10 @@ export default function Index() {
 
   const { height } = useWindowDimensions();
 
-  let currentUser: string | null = sessionStorage.getItem("user");
+  let currentUser =
+    Platform.OS == "web"
+      ? sessionStorage.getItem("user")
+      : secureStore.getItemAsync("user");
 
   console.log("messaging user: " + receiverId);
 

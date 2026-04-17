@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text, Pressable } from "react-native";
 import { useRouter } from "expo-router";
-import { getCurrentUser } from "./lib/currentUser";
+import * as secureStore from "expo-secure-store";
+import React, { useEffect, useState } from "react";
+import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { serverName } from "./login";
 
 // import "./app.css";
@@ -16,6 +16,11 @@ const Users = () => {
   const [usersList, setUsersList] = useState<Users[]>([]);
 
   const url = `${serverName}/list`;
+
+  let currentUser =
+    Platform.OS == "web"
+      ? sessionStorage.getItem("user")
+      : secureStore.getItemAsync("user");
 
   const router = useRouter();
 
@@ -40,7 +45,8 @@ const Users = () => {
         }}
       >
         <Text style={{ color: "#015C00", fontWeight: 600 }}>
-          {getCurrentUser()}{" "}
+          {/* {getCurrentUser()}{" "} */}
+          {currentUser}
         </Text>
       </View>
 
