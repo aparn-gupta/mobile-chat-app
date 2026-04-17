@@ -5,9 +5,9 @@ import { useRouter } from "expo-router";
 import { setCurrentUser } from "./lib/currentUser";
 import { useWindowDimensions } from "react-native";
 
-// export const serverName = "http://localhost:3001";
-export const serverName =
-  "https://mychat-app-aparnas-projects-5f64a891.vercel.app";
+export const serverName = "http://localhost:3000";
+// export const serverName =
+//   "https://mychat-app-aparnas-projects-5f64a891.vercel.app";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -21,6 +21,9 @@ const Login = () => {
   console.log(username, password);
 
   const handleRegister = async () => {
+    if (!username || !password) {
+      // alert("Username and Password are required");
+    }
     try {
       const url = `${serverName}/login`;
       const res = await fetch(url, {
@@ -31,10 +34,15 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
+      const result = await res.json();
+
+      console.log(result);
+
       if (!res.ok) throw new Error("Login error");
 
       connectSocket(username);
       setCurrentUser(username);
+      sessionStorage.setItem("user", username);
       router.push("/users");
     } catch (err: any) {
       console.error(err);

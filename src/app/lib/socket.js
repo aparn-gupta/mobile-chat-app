@@ -2,8 +2,8 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
-let socketAddress = "https://mychatapp-ntgv.onrender.com";
-// let socketAddress = "http://localhost:3000";
+// let socketAddress = "https://mychatapp-ntgv.onrender.com";
+let socketAddress = "http://localhost:3002";
 
 const createSocket = () => {
   if (!socket) {
@@ -21,7 +21,7 @@ export const connectSocket = (user) => {
   const s = createSocket();
 
   s.on("connect", () => {
-    console.log("connected" + s.id);
+    console.log("socket connected" + s.id);
   });
 
   if (!s.connected) {

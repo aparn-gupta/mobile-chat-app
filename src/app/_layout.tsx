@@ -22,7 +22,7 @@ export default function RootLayout() {
                 height: 30,
                 width: 30,
                 resizeMode: "contain",
-                borderRadius: "50%",
+                borderRadius: 50,
               }}
             />
             <Text style={{ color: "black", fontSize: 18, paddingLeft: 8 }}>

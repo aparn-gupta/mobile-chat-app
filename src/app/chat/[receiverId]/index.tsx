@@ -12,6 +12,7 @@ import { Button } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { getCurrentUser } from "@/app/lib/currentUser";
 import { useWindowDimensions } from "react-native";
+import { serverName } from "@/app/login";
 
 // import { SendHorizontal } from "lucide-react-native";
 
@@ -23,19 +24,38 @@ export default function Index() {
 
   const { height } = useWindowDimensions();
 
+  let currentUser: string | null = sessionStorage.getItem("user");
+
   console.log("messaging user: " + receiverId);
 
   const [allMessages, setAllMessages] = useState<
     { rec?: string; sent?: string }[]
   >([]);
+
+  const fetchMessages = async () => {
+    try {
+      const url = `${serverName}/all_messages?sender=${currentUser}&receiver=${receiverId}`;
+
+      const res = await fetch(url);
+      const result = await res.json();
+      console.log(result);
+      // setAllMessages(result.messages);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    // const testServer = () => {
-    //   fetch("http://localhost:3000")
-    //     .then((res) => res.json())
-    //     .then((data) => console.log(data));
-    // };
-    // testServer();
-    let s = connectSocket();
+    fetchMessages();
+
+    // const currentUser = getCurrentUser();
+
+    let s = connectSocket(currentUser);
+
+    s.on("disconnect", () => {
+      console.log("socket disconnected");
+      connectSocket(currentUser);
+    });
 
     s.on("receiveMesssage", (data: string) => {
       const notificationSound = new Audio("/notification.mp3");
@@ -48,13 +68,14 @@ export default function Index() {
   }, []);
 
   const sendMessage = () => {
-    console.log(userMessage);
+    console.log(userMessage, currentUser);
+    // console.log(getCurrentUser());
 
     let s = connectSocket();
 
     s.emit("sendMessage", {
       senderId: s.id, //Connected Client Id
-      sender: getCurrentUser(),
+      sender: currentUser,
       receiver: receiverId,
       userMessage: userMessage,
     });
@@ -71,13 +92,14 @@ export default function Index() {
         backgroundColor: "#E8F3DC",
       }}
     >
-      {/* <Text
+      <Text
         style={{
           marginBottom: 0,
+          textAlign: "right",
         }}
       >
-        Hello
-      </Text> */}
+        {currentUser}
+      </Text>
 
       <View
         style={{
@@ -91,24 +113,30 @@ export default function Index() {
         }}
       >
         <ScrollView>
-          {allMessages.map((item, i) => {
-            return (
-              <View
-                key={i}
-                style={{
-                  padding: 10,
-                  backgroundColor: item.rec ? "pink" : "lightblue",
-                  borderRadius: 10,
-                  marginBottom: 20,
-                  width: "75%",
+          {allMessages?.length ? (
+            allMessages.map((item, i) => {
+              return (
+                <View
+                  key={i}
+                  style={{
+                    padding: 10,
+                    backgroundColor: item.rec ? "pink" : "lightblue",
+                    borderRadius: 10,
+                    marginBottom: 20,
+                    width: "75%",
 
-                  alignSelf: item.rec ? "flex-start" : "flex-end",
-                }}
-              >
-                <Text> {item.rec || item.sent}</Text>
-              </View>
-            );
-          })}
+                    alignSelf: item.rec ? "flex-start" : "flex-end",
+                  }}
+                >
+                  <Text> {item.rec || item.sent}</Text>
+                </View>
+              );
+            })
+          ) : (
+            <View>
+              <Text>No messages</Text>
+            </View>
+          )}
         </ScrollView>
 
         <View

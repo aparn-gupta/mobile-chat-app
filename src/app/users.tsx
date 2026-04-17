@@ -15,7 +15,7 @@ type Users = {
 const Users = () => {
   const [usersList, setUsersList] = useState<Users[]>([]);
 
-  const url = serverName;
+  const url = `${serverName}/list`;
 
   const router = useRouter();
 
@@ -45,30 +45,36 @@ const Users = () => {
       </View>
 
       <ScrollView style={{ padding: 5, borderRadius: 16 }}>
-        {usersList.map((item, i) => {
-          return (
-            <Pressable
-              key={i}
-              className="user"
-              style={({ pressed }) => ({
-                height: 48,
-                color: pressed ? "#fff" : "black",
+        {usersList.length ? (
+          usersList.map((item, i) => {
+            return (
+              <Pressable
+                key={i}
+                className="user"
+                style={({ pressed }) => ({
+                  height: 48,
+                  color: pressed ? "#fff" : "black",
 
-                backgroundColor: pressed ? "#82B640" : "#E8F3DC",
-                width: "100%",
-                borderColor: "#fff",
-                borderWidth: 1,
-                display: "flex",
-                justifyContent: "center",
-                padding: 6,
-              })}
-            >
-              <Text onPress={() => router.push(`/chat/${item.username}`)}>
-                {item.username}
-              </Text>
-            </Pressable>
-          );
-        })}
+                  backgroundColor: pressed ? "#82B640" : "#E8F3DC",
+                  width: "100%",
+                  borderColor: "#fff",
+                  borderWidth: 1,
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: 6,
+                })}
+              >
+                <Text onPress={() => router.push(`/chat/${item.username}`)}>
+                  {item.username}
+                </Text>
+              </Pressable>
+            );
+          })
+        ) : (
+          <View>
+            <Text>No users found</Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
