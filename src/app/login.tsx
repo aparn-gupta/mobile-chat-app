@@ -3,7 +3,9 @@ import * as secureStore from "expo-secure-store";
 import React, { useState } from "react";
 import {
   Button,
+  KeyboardAvoidingView,
   Platform,
+  ScrollView,
   Text,
   TextInput,
   useWindowDimensions,
@@ -77,47 +79,74 @@ const Login = () => {
           width: width,
         }}
       >
-        <Text style={{ color: "red", padding: 16 }}>{error?.toString()}</Text>
-        <View style={{ width: "80%", height: "30%", backgroundColor: "" }}>
-          <TextInput
-            onChangeText={setUsername}
-            value={username}
-            placeholder="Username"
-            style={{
-              height: 56,
-              width: 300,
-              borderColor: "green",
-              borderWidth: 1,
-              padding: 10,
-              borderRadius: 8,
-              margin: 10,
-            }}
-          />
+        <KeyboardAvoidingView
+          behavior={Platform.OS == "ios" ? "padding" : "height"}
+          style={{
+            flex: 1,
+            backgroundColor: "",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: height,
+            width: width,
+          }}
+        >
+          <View style={{ width: "70%", height: "50%", backgroundColor: "" }}>
+            {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "flex-start",
+              }}
+            >
+              <Text style={{ color: "red", padding: 16 }}>
+                {error?.toString()}
+              </Text>
+              <TextInput
+                onChangeText={setUsername}
+                value={username}
+                placeholder="Username"
+                style={{
+                  height: 56,
+                  width: "100%",
+                  borderColor: "green",
+                  alignSelf: "center",
+                  borderWidth: 1,
+                  padding: 10,
+                  borderRadius: 8,
+                  margin: 10,
+                }}
+              />
 
-          <TextInput
-            onChangeText={setPassword}
-            value={password}
-            placeholder="Password"
-            style={{
-              height: 56,
-              width: 300,
-              borderColor: "green",
-              borderWidth: 1,
-              padding: 10,
-              borderRadius: 8,
-              margin: 10,
-            }}
-          />
+              <TextInput
+                onChangeText={setPassword}
+                value={password}
+                placeholder="Password"
+                style={{
+                  height: 56,
+                  width: "100%",
+                  borderColor: "green",
+                  alignSelf: "center",
+                  borderWidth: 1,
+                  padding: 10,
+                  borderRadius: 8,
+                  margin: 10,
+                }}
+              />
 
-          <View
-            style={{
-              width: 300,
-              margin: 10,
-            }}
-          >
-            <Button title="Go" onPress={handleRegister} color={"#016F01"} />
+              <View
+                style={{
+                  width: "100%",
+                  alignSelf: "center",
+                  margin: 10,
+                }}
+              >
+                <Button title="Go" onPress={handleRegister} color={"#016F01"} />
+              </View>
+            </ScrollView>
+            {/* </TouchableWithoutFeedback> */}
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </View>
   );
