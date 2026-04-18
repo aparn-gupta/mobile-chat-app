@@ -1,7 +1,14 @@
 import { Stack } from "expo-router";
-import { Text, Image, View } from "react-native";
+import * as secureStore from "expo-secure-store";
+import { Image, Platform, Text, useWindowDimensions, View } from "react-native";
 
 export default function RootLayout() {
+  const { width } = useWindowDimensions();
+  let currentUser =
+    Platform.OS == "web"
+      ? sessionStorage.getItem("user")
+      : secureStore.getItemAsync("user");
+
   return (
     <Stack
       screenOptions={{
@@ -11,23 +18,39 @@ export default function RootLayout() {
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
+              justifyContent: "space-between",
+              width: width * 0.95,
+              alignSelf: "center",
             }}
           >
-            <Image
-              source={{
-                // uri: "https://img.freepik.com/premium-vector/chat-logo-design_93835-108.jpg",
-                uri: "https://freepngimg.com/png/159738-photos-speech-chat-icon-free-hd-image",
-              }}
+            <View
               style={{
-                height: 30,
-                width: 30,
-                resizeMode: "contain",
-                borderRadius: 50,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                // justifyContent: "space-between",
               }}
-            />
-            <Text style={{ color: "black", fontSize: 18, paddingLeft: 8 }}>
-              My Chat
-            </Text>
+            >
+              <Image
+                source={{
+                  // uri: "https://img.freepik.com/premium-vector/chat-logo-design_93835-108.jpg",
+                  uri: "https://freepngimg.com/png/159738-photos-speech-chat-icon-free-hd-image",
+                }}
+                style={{
+                  height: 30,
+                  width: 30,
+                  resizeMode: "contain",
+                  borderRadius: 50,
+                }}
+              />
+              <Text style={{ color: "black", fontSize: 18, paddingLeft: 1 }}>
+                My Chat
+              </Text>
+            </View>
+
+            <View>
+              <Text>{currentUser} </Text>
+            </View>
           </View>
         ),
         headerStyle: { backgroundColor: "#A2C963" },

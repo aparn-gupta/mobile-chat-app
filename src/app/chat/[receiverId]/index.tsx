@@ -1,10 +1,12 @@
 import { serverName } from "@/app/login";
 import { useLocalSearchParams } from "expo-router";
 import * as secureStore from "expo-secure-store";
+import { SendHorizontal } from "lucide-react-native";
 import { useEffect, useState } from "react";
+
 import {
-  Button,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,6 +18,15 @@ import { connectSocket } from "../../lib/socket";
 
 // import { SendHorizontal } from "lucide-react-native";
 
+type messageBody = {
+  conversationId: string;
+  id: string;
+  message: string;
+  receiver: string;
+  sender: string;
+  timestamp: string;
+};
+
 export default function Index() {
   const [userMessage, setUserMessage] = useState("");
   // const [receivedMessage, setRecievedMessage] = useState("");
@@ -24,6 +35,25 @@ export default function Index() {
 
   const { height } = useWindowDimensions();
 
+  const formatDate = (dateStr) => {
+    const date = new Date(Number(dateStr)); // Current time
+
+    console.log(date);
+
+    const options = {
+      // timeZone: "America/New_York",
+      hour: "2-digit",
+      minute: "2-digit",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    };
+
+    const formatter = new Intl.DateTimeFormat("en-CA", options);
+
+    return formatter.format(date);
+  };
+
   let currentUser =
     Platform.OS == "web"
       ? sessionStorage.getItem("user")
@@ -31,9 +61,7 @@ export default function Index() {
 
   console.log("messaging user: " + receiverId);
 
-  const [allMessages, setAllMessages] = useState<
-    { rec?: string; sent?: string }[]
-  >([]);
+  const [allMessages, setAllMessages] = useState([]);
 
   const fetchMessages = async () => {
     try {
@@ -42,11 +70,26 @@ export default function Index() {
       const res = await fetch(url);
       const result = await res.json();
       console.log(result);
+
+      let messagesArr = [];
+
+      result.messages.forEach((item: messageBody) => {
+        messagesArr.push({
+          [item.sender]: item.message,
+          timestamp: item.timestamp,
+        });
+      });
+
+      console.log(messagesArr);
+      setAllMessages(messagesArr);
+
       // setAllMessages(result.messages);
     } catch (err) {
       console.log(err);
     }
   };
+
+  console.log(allMessages);
 
   useEffect(() => {
     fetchMessages();
@@ -65,8 +108,14 @@ export default function Index() {
 
       notificationSound.play();
 
-      console.log("Recieved Message" + data);
-      setAllMessages((prev) => [...prev, { rec: data }]);
+      if (data.sender == receiverId) {
+        console.log("Recieved Message" + data);
+
+        setAllMessages((prev) => [
+          ...prev,
+          { [receiverId]: data.userMessage, timestamp: data.timestamp },
+        ]);
+      }
     });
   }, []);
 
@@ -81,9 +130,13 @@ export default function Index() {
       sender: currentUser,
       receiver: receiverId,
       userMessage: userMessage,
+      timestamp: Date.now().toString(),
     });
 
-    setAllMessages((prev) => [...prev, { sent: userMessage }]);
+    setAllMessages((prev) => [
+      ...prev,
+      { [currentUser]: userMessage, timestamp: Date.now().toString() },
+    ]);
 
     setUserMessage("");
   };
@@ -95,14 +148,14 @@ export default function Index() {
         backgroundColor: "#E8F3DC",
       }}
     >
-      <Text
+      {/* <Text
         style={{
           marginBottom: 0,
           textAlign: "right",
         }}
       >
         {currentUser}
-      </Text>
+      </Text> */}
 
       <View
         style={{
@@ -123,15 +176,27 @@ export default function Index() {
                   key={i}
                   style={{
                     padding: 10,
-                    backgroundColor: item.rec ? "pink" : "lightblue",
+                    backgroundColor: item[receiverId] ? "pink" : "lightblue",
                     borderRadius: 10,
                     marginBottom: 20,
                     width: "75%",
 
-                    alignSelf: item.rec ? "flex-start" : "flex-end",
+                    alignSelf: item[receiverId] ? "flex-start" : "flex-end",
                   }}
                 >
-                  <Text> {item.rec || item.sent}</Text>
+                  <Text> {item[receiverId] || item[currentUser]}</Text>
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "row",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <Text style={{ fontSize: 10 }}>
+                      {" "}
+                      {formatDate(item.timestamp)}
+                    </Text>
+                  </View>
                 </View>
               );
             })
@@ -157,7 +222,7 @@ export default function Index() {
             value={userMessage}
             style={{
               height: 48,
-              width: "90%",
+              width: "95%",
               backgroundColor: "#fff",
               borderRadius: 10,
               // borderColor: "green",
@@ -180,14 +245,25 @@ export default function Index() {
           </Pressable> */}
           <View
             style={{
-              height: 56,
-              width: 56,
-              display: "flex",
-              justifyContent: "center",
+              height: 24,
+              width: 24,
+
               marginLeft: 10,
             }}
           >
-            <Button title="Send" onPress={sendMessage} color={"#01B949"} />
+            <Pressable
+              onPress={sendMessage}
+              style={{
+                height: 24,
+                width: 24,
+                display: "flex",
+                justifyContent: "center",
+                marginTop: 10,
+              }}
+            >
+              <SendHorizontal color={"#175E18"} size={36} fill={"#01B949"} />
+            </Pressable>
+            {/* <Button title="Send" onPress={sendMessage} color={"#01B949"} /> */}
           </View>
         </View>
       </View>
