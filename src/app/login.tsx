@@ -12,9 +12,9 @@ import {
 import { setCurrentUser } from "./lib/currentUser";
 import { connectSocket } from "./lib/socket";
 
-export const serverName = "http://localhost:3000";
-// export const serverName =
-//   "https://mychat-app-aparnas-projects-5f64a891.vercel.app";
+// export const serverName = "http://localhost:3000";
+export const serverName =
+  "https://mychat-app-aparnas-projects-5f64a891.vercel.app";
 
 const Login = () => {
   const [username, setUsername] = useState("");
