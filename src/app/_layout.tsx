@@ -1,13 +1,25 @@
 import { Stack } from "expo-router";
 import * as secureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
 import { Image, Platform, Text, useWindowDimensions, View } from "react-native";
 
 export default function RootLayout() {
   const { width } = useWindowDimensions();
-  let currentUser =
-    Platform.OS == "web"
-      ? sessionStorage.getItem("user")
-      : secureStore.getItemAsync("user");
+  const [currentUser, setCurrentUser] = useState("");
+
+  useEffect(() => {
+    const getUser = async () => {
+      if (Platform.OS == "web") {
+        setCurrentUser(sessionStorage.getItem("user"));
+      } else {
+        const user = await secureStore.getItemAsync("user");
+
+        setCurrentUser(user);
+      }
+    };
+
+    getUser();
+  }, []);
 
   return (
     <Stack
@@ -19,8 +31,9 @@ export default function RootLayout() {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
-              width: width * 0.95,
+              width: width * 0.97,
               alignSelf: "center",
+              height: 64,
             }}
           >
             <View
@@ -28,6 +41,7 @@ export default function RootLayout() {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
+                flex: 1,
                 // justifyContent: "space-between",
               }}
             >
@@ -43,12 +57,25 @@ export default function RootLayout() {
                   borderRadius: 50,
                 }}
               />
-              <Text style={{ color: "black", fontSize: 18, paddingLeft: 1 }}>
+              <Text
+                style={{
+                  color: "black",
+                  fontSize: 18,
+                  paddingLeft: 1,
+                  textAlign: "right",
+                }}
+              >
                 My Chat
               </Text>
             </View>
 
-            <View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "flex-end",
+              }}
+            >
               <Text>{currentUser} </Text>
             </View>
           </View>

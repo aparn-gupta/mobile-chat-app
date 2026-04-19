@@ -34,6 +34,7 @@ export default function Index() {
   const { receiverId } = useLocalSearchParams();
 
   const { height } = useWindowDimensions();
+  const [currentUser, setCurrentUser] = useState("");
 
   const formatDate = (dateStr) => {
     const date = new Date(Number(dateStr)); // Current time
@@ -54,10 +55,19 @@ export default function Index() {
     return formatter.format(date);
   };
 
-  let currentUser =
-    Platform.OS == "web"
-      ? sessionStorage.getItem("user")
-      : secureStore.getItemAsync("user");
+  useEffect(() => {
+    const getUser = async () => {
+      if (Platform.OS == "web") {
+        setCurrentUser(sessionStorage.getItem("user"));
+      } else {
+        const user = await secureStore.getItemAsync("user");
+
+        setCurrentUser(user);
+      }
+    };
+
+    getUser();
+  }, []);
 
   console.log("messaging user: " + receiverId);
 
@@ -146,6 +156,7 @@ export default function Index() {
       style={{
         padding: 8,
         backgroundColor: "#E8F3DC",
+        height: height,
       }}
     >
       {/* <Text
@@ -161,14 +172,15 @@ export default function Index() {
         style={{
           padding: 16,
           width: "100%",
-          height: height * 0.85,
+          height: height * 0.88,
           backgroundColor: "#E8F3DC",
+          // backgroundColor: "red",
           borderRadius: 20,
           display: "flex",
           justifyContent: "space-between",
         }}
       >
-        <ScrollView>
+        <ScrollView style={{ height: height * 70 }}>
           {allMessages?.length ? (
             allMessages.map((item, i) => {
               return (
@@ -180,6 +192,7 @@ export default function Index() {
                     borderRadius: 10,
                     marginBottom: 20,
                     width: "75%",
+                    flex: 1,
 
                     alignSelf: item[receiverId] ? "flex-start" : "flex-end",
                   }}
@@ -193,7 +206,6 @@ export default function Index() {
                     }}
                   >
                     <Text style={{ fontSize: 10 }}>
-                      {" "}
                       {formatDate(item.timestamp)}
                     </Text>
                   </View>
@@ -201,7 +213,7 @@ export default function Index() {
               );
             })
           ) : (
-            <View>
+            <View style={{ flex: 1 }}>
               <Text>No messages</Text>
             </View>
           )}
@@ -248,7 +260,7 @@ export default function Index() {
               height: 24,
               width: 24,
 
-              marginLeft: 10,
+              marginLeft: 2,
             }}
           >
             <Pressable

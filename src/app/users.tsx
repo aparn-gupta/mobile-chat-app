@@ -17,10 +17,21 @@ const Users = () => {
 
   const url = `${serverName}/list`;
 
-  let currentUser =
-    Platform.OS == "web"
-      ? sessionStorage.getItem("user")
-      : secureStore.getItemAsync("user");
+  const [currentUser, setCurrentUser] = useState("");
+
+  useEffect(() => {
+    const getUser = async () => {
+      if (Platform.OS == "web") {
+        setCurrentUser(sessionStorage.getItem("user"));
+      } else {
+        const user = await secureStore.getItemAsync("user");
+
+        setCurrentUser(user);
+      }
+    };
+
+    getUser();
+  }, []);
 
   const router = useRouter();
 
@@ -35,22 +46,22 @@ const Users = () => {
   }, []);
 
   return (
-    <View>
-      <View
+    <View style={{ flex: 1 }}>
+      {/* <View
         style={{
           padding: 16,
           display: "flex",
           flexDirection: "row",
           justifyContent: "flex-end",
+          flex: 1,
         }}
       >
         <Text style={{ color: "#015C00", fontWeight: 600 }}>
-          {/* {getCurrentUser()}{" "} */}
           {currentUser}
         </Text>
-      </View>
+      </View> */}
 
-      <ScrollView style={{ padding: 5, borderRadius: 16 }}>
+      <ScrollView style={{ padding: 5, borderRadius: 16, flex: 1 }}>
         {usersList.length ? (
           usersList.map((item, i) => {
             return (
@@ -77,7 +88,7 @@ const Users = () => {
             );
           })
         ) : (
-          <View>
+          <View style={{ flex: 1 }}>
             <Text>No users found</Text>
           </View>
         )}

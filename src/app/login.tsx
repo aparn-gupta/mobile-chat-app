@@ -54,7 +54,7 @@ const Login = () => {
 
       Platform.OS == "web"
         ? sessionStorage.setItem("user", username)
-        : secureStore.setItemAsync("user", username);
+        : await secureStore.setItemAsync("user", username);
 
       router.push("/users");
     } catch (err: any) {
@@ -67,6 +67,7 @@ const Login = () => {
     <View
       style={{
         padding: 6,
+        flex: 1,
       }}
     >
       <View
@@ -91,12 +92,19 @@ const Login = () => {
             width: width,
           }}
         >
-          <View style={{ width: "70%", height: "50%", backgroundColor: "" }}>
+          <View
+            style={{
+              width: "70%",
+              backgroundColor: "",
+              flex: 1,
+            }}
+          >
             {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
             <ScrollView
               contentContainerStyle={{
                 flexGrow: 1,
                 justifyContent: "flex-start",
+                flex: 1,
               }}
             >
               <Text style={{ color: "red", padding: 16 }}>
@@ -139,6 +147,7 @@ const Login = () => {
                   width: "100%",
                   alignSelf: "center",
                   margin: 10,
+                  flex: 1,
                 }}
               >
                 <Button title="Go" onPress={handleRegister} color={"#016F01"} />

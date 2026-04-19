@@ -4,7 +4,7 @@ import Login from "./login";
 
 const Index = () => {
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <Login />
     </View>
   );
