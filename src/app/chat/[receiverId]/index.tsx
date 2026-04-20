@@ -2,7 +2,7 @@ import { serverName } from "@/app/login";
 import { useLocalSearchParams } from "expo-router";
 import * as secureStore from "expo-secure-store";
 import { SendHorizontal } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import {
   Platform,
@@ -36,10 +36,12 @@ export default function Index() {
   const { height } = useWindowDimensions();
   const [currentUser, setCurrentUser] = useState("");
 
+  let currentUserRef = useRef(null);
+
   const formatDate = (dateStr) => {
     const date = new Date(Number(dateStr)); // Current time
 
-    console.log(date);
+    // console.log(date);
 
     const options = {
       // timeZone: "America/New_York",
@@ -59,8 +61,10 @@ export default function Index() {
     const getUser = async () => {
       if (Platform.OS == "web") {
         setCurrentUser(sessionStorage.getItem("user"));
+        currentUserRef.current = sessionStorage.getItem("user");
       } else {
         const user = await secureStore.getItemAsync("user");
+        currentUserRef.current = user;
 
         setCurrentUser(user);
       }
@@ -69,13 +73,20 @@ export default function Index() {
     getUser();
   }, []);
 
-  console.log("messaging user: " + receiverId);
+  let s = connectSocket(currentUserRef.current);
+
+  s.on("disconnect", () => {
+    console.log("socket disconnected");
+    connectSocket(currentUserRef.current);
+  });
+
+  // console.log("messaging user: " + receiverId);
 
   const [allMessages, setAllMessages] = useState([]);
 
   const fetchMessages = async () => {
     try {
-      const url = `${serverName}/all_messages?sender=${currentUser}&receiver=${receiverId}`;
+      const url = `${serverName}/all_messages?sender=${currentUserRef.current}&receiver=${receiverId}`;
 
       const res = await fetch(url);
       const result = await res.json();
@@ -106,13 +117,6 @@ export default function Index() {
 
     // const currentUser = getCurrentUser();
 
-    let s = connectSocket(currentUser);
-
-    s.on("disconnect", () => {
-      console.log("socket disconnected");
-      connectSocket(currentUser);
-    });
-
     s.on("receiveMesssage", (data: string) => {
       const notificationSound = new Audio("/notification.mp3");
 
@@ -130,10 +134,8 @@ export default function Index() {
   }, []);
 
   const sendMessage = () => {
-    console.log(userMessage, currentUser);
+    // console.log(userMessage, currentUser);
     // console.log(getCurrentUser());
-
-    let s = connectSocket();
 
     s.emit("sendMessage", {
       senderId: s.id, //Connected Client Id
