@@ -1,7 +1,14 @@
 import { useRouter } from "expo-router";
 import * as secureStore from "expo-secure-store";
-import React, { useEffect, useState } from "react";
-import { Platform, Pressable, ScrollView, Text, View } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  RefreshControl,
+} from "react-native";
 import { serverName } from "./login";
 
 // import "./app.css";
@@ -19,19 +26,28 @@ const Users = () => {
 
   const [currentUser, setCurrentUser] = useState("");
 
-  useEffect(() => {
-    const getUser = async () => {
-      if (Platform.OS == "web") {
-        setCurrentUser(sessionStorage.getItem("user"));
-      } else {
-        const user = await secureStore.getItemAsync("user");
+  const [refreshing, setRefreshing] = useState(false);
 
-        setCurrentUser(user);
-      }
-    };
-
-    getUser();
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
   }, []);
+
+  // useEffect(() => {
+  //   const getUser = async () => {
+  //     if (Platform.OS == "web") {
+  //       setCurrentUser(sessionStorage.getItem("user"));
+  //     } else {
+  //       const user = await secureStore.getItemAsync("user");
+
+  //       setCurrentUser(user);
+  //     }
+  //   };
+
+  //   getUser();
+  // }, []);
 
   const router = useRouter();
 
@@ -61,7 +77,12 @@ const Users = () => {
         </Text>
       </View> */}
 
-      <ScrollView style={{ padding: 5, borderRadius: 16, flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{ padding: 5, borderRadius: 16, flex: 1 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {usersList.length ? (
           usersList.map((item, i) => {
             return (

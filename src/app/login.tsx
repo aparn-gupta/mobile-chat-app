@@ -64,26 +64,25 @@ const Login = () => {
   };
 
   return (
-    <View
+    <KeyboardAvoidingView
       style={{
-        padding: 6,
         flex: 1,
+        backgroundColor: "",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: height,
+        width: width,
       }}
     >
       <View
         style={{
-          backgroundColor: "",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: height,
-          width: width,
+          padding: 6,
+          flex: 1,
         }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS == "ios" ? "padding" : "height"}
+        <View
           style={{
-            flex: 1,
             backgroundColor: "",
             display: "flex",
             justifyContent: "center",
@@ -155,9 +154,9 @@ const Login = () => {
             </ScrollView>
             {/* </TouchableWithoutFeedback> */}
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -2,7 +2,7 @@ import { serverName } from "@/app/login";
 import { useLocalSearchParams } from "expo-router";
 import * as secureStore from "expo-secure-store";
 import { SendHorizontal } from "lucide-react-native";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 import {
   Platform,
@@ -13,6 +13,8 @@ import {
   TextInput,
   useWindowDimensions,
   View,
+  KeyboardAvoidingView,
+  RefreshControl,
 } from "react-native";
 import { connectSocket } from "../../lib/socket";
 
@@ -32,6 +34,7 @@ export default function Index() {
   // const [receivedMessage, setRecievedMessage] = useState("");
 
   const { receiverId } = useLocalSearchParams();
+  const [refreshing, setRefreshing] = useState(false);
 
   const { height } = useWindowDimensions();
   const [currentUser, setCurrentUser] = useState("");
@@ -112,6 +115,13 @@ export default function Index() {
 
   console.log(allMessages);
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   useEffect(() => {
     fetchMessages();
 
@@ -154,14 +164,15 @@ export default function Index() {
   };
 
   return (
-    <View
-      style={{
-        padding: 8,
-        backgroundColor: "#E8F3DC",
-        height: height,
-      }}
-    >
-      {/* <Text
+    <KeyboardAvoidingView>
+      <View
+        style={{
+          padding: 8,
+          backgroundColor: "#E8F3DC",
+          height: height,
+        }}
+      >
+        {/* <Text
         style={{
           marginBottom: 0,
           textAlign: "right",
@@ -170,82 +181,87 @@ export default function Index() {
         {currentUser}
       </Text> */}
 
-      <View
-        style={{
-          padding: 16,
-          width: "100%",
-          height: height * 0.88,
-          backgroundColor: "#E8F3DC",
-          // backgroundColor: "red",
-          borderRadius: 20,
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <ScrollView style={{ height: height * 70 }}>
-          {allMessages?.length ? (
-            allMessages.map((item, i) => {
-              return (
-                <View
-                  key={i}
-                  style={{
-                    padding: 10,
-                    backgroundColor: item[receiverId] ? "pink" : "lightblue",
-                    borderRadius: 10,
-                    marginBottom: 20,
-                    width: "75%",
-                    flex: 1,
-
-                    alignSelf: item[receiverId] ? "flex-start" : "flex-end",
-                  }}
-                >
-                  <Text> {item[receiverId] || item[currentUser]}</Text>
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: "row",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <Text style={{ fontSize: 10 }}>
-                      {formatDate(item.timestamp)}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })
-          ) : (
-            <View style={{ flex: 1 }}>
-              <Text>No messages</Text>
-            </View>
-          )}
-        </ScrollView>
-
         <View
           style={{
-            height: 30,
+            padding: 16,
             width: "100%",
-            marginBottom: 10,
+            height: height * 0.88,
+            backgroundColor: "#E8F3DC",
+            // backgroundColor: "red",
+            borderRadius: 20,
             display: "flex",
-            flexDirection: "row",
             justifyContent: "space-between",
           }}
         >
-          <TextInput
-            onChangeText={setUserMessage}
-            value={userMessage}
-            style={{
-              height: 48,
-              width: "95%",
-              backgroundColor: "#fff",
-              borderRadius: 10,
-              // borderColor: "green",
-              // borderWidth: 1,
-              padding: 24,
-            }}
-          />
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            style={{ height: height * 70 }}
+          >
+            {allMessages?.length ? (
+              allMessages.map((item, i) => {
+                return (
+                  <View
+                    key={i}
+                    style={{
+                      padding: 10,
+                      backgroundColor: item[receiverId] ? "pink" : "lightblue",
+                      borderRadius: 10,
+                      marginBottom: 20,
+                      width: "75%",
+                      flex: 1,
 
-          {/* <Pressable
+                      alignSelf: item[receiverId] ? "flex-start" : "flex-end",
+                    }}
+                  >
+                    <Text> {item[receiverId] || item[currentUser]}</Text>
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Text style={{ fontSize: 10 }}>
+                        {formatDate(item.timestamp)}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })
+            ) : (
+              <View style={{ flex: 1 }}>
+                <Text>No messages</Text>
+              </View>
+            )}
+          </ScrollView>
+
+          <View
+            style={{
+              height: 30,
+              width: "100%",
+              marginBottom: 10,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <TextInput
+              onChangeText={setUserMessage}
+              value={userMessage}
+              style={{
+                height: 48,
+                width: "95%",
+                backgroundColor: "#fff",
+                borderRadius: 10,
+                // borderColor: "green",
+                // borderWidth: 1,
+                padding: 24,
+              }}
+            />
+
+            {/* <Pressable
             onPress={sendMessage}
             style={{
               height: 28,
@@ -257,31 +273,32 @@ export default function Index() {
           >
             <Text> Send</Text>
           </Pressable> */}
-          <View
-            style={{
-              height: 24,
-              width: 24,
-
-              marginLeft: 2,
-            }}
-          >
-            <Pressable
-              onPress={sendMessage}
+            <View
               style={{
                 height: 24,
                 width: 24,
-                display: "flex",
-                justifyContent: "center",
-                marginTop: 10,
+
+                marginLeft: 2,
               }}
             >
-              <SendHorizontal color={"#175E18"} size={36} fill={"#01B949"} />
-            </Pressable>
-            {/* <Button title="Send" onPress={sendMessage} color={"#01B949"} /> */}
+              <Pressable
+                onPress={sendMessage}
+                style={{
+                  height: 24,
+                  width: 24,
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: 10,
+                }}
+              >
+                <SendHorizontal color={"#175E18"} size={36} fill={"#01B949"} />
+              </Pressable>
+              {/* <Button title="Send" onPress={sendMessage} color={"#01B949"} /> */}
+            </View>
           </View>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
