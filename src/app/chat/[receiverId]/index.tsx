@@ -154,6 +154,14 @@ export default function Index() {
     // console.log(userMessage, currentUser);
     // console.log(getCurrentUser());
 
+    console.log({
+      senderId: socketRef.current.id, //Connected Client Id
+      sender: currentUserRef.current,
+      receiver: receiverId,
+      userMessage: userMessage,
+      timestamp: Date.now().toString(),
+    });
+
     if (!userMessage.trim()) return;
 
     socketRef.current?.emit("sendMessage", {
@@ -163,6 +171,7 @@ export default function Index() {
       userMessage: userMessage,
       timestamp: Date.now().toString(),
     });
+    console.log("socket message sent");
 
     setAllMessages((prev) => [
       ...prev,
