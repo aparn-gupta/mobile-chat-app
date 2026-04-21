@@ -11,7 +11,7 @@ const createSocket = () => {
   if (!socket) {
     socket = io(socketAddress, {
       reconnection: true,
-      reconnectionAttempts: 3,
+      reconnectionAttempts: 5,
       reconnectionDelay: 1000,
     });
   }
@@ -22,16 +22,15 @@ const createSocket = () => {
 export const connectSocket = (user) => {
   const s = createSocket();
 
+  s.off("connect");
+
   s.on("connect", () => {
     console.log("socket connected" + s.id);
+    s.emit("register", user);
   });
 
   if (!s.connected) {
     s.connect();
-    s.on("connect", () => {
-      console.log("socket connected" + s.id);
-    });
-    s.emit("register", user);
   }
 
   return s;

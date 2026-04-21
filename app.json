@@ -32,7 +32,8 @@
           "backgroundColor": "#82B640",
           "android": {
             "image": "./assets/images/chat-logo.png",
-            "imageWidth": 76
+            "imageWidth": 76,
+            "softwareKeyboardLayoutMode": "resize"
           }
         }
       ],

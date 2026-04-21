@@ -34,6 +34,7 @@ export default function RootLayout() {
               width: width * 0.97,
               alignSelf: "center",
               height: 64,
+              flex: 1,
             }}
           >
             <View

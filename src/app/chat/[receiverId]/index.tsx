@@ -31,15 +31,13 @@ type messageBody = {
 
 export default function Index() {
   const [userMessage, setUserMessage] = useState("");
-  // const [receivedMessage, setRecievedMessage] = useState("");
-
   const { receiverId } = useLocalSearchParams();
   const [refreshing, setRefreshing] = useState(false);
-
-  const { height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [currentUser, setCurrentUser] = useState("");
-
   let currentUserRef = useRef(null);
+  let socketRef = useRef(null);
+  const [allMessages, setAllMessages] = useState([]);
 
   const formatDate = (dateStr) => {
     const date = new Date(Number(dateStr)); // Current time
@@ -60,32 +58,20 @@ export default function Index() {
     return formatter.format(date);
   };
 
-  useEffect(() => {
-    const getUser = async () => {
-      if (Platform.OS == "web") {
-        setCurrentUser(sessionStorage.getItem("user"));
-        currentUserRef.current = sessionStorage.getItem("user");
-      } else {
-        const user = await secureStore.getItemAsync("user");
-        currentUserRef.current = user;
+  const handleMessage = (data) => {
+    // const notificationSound = new Audio("/notification.mp3");
 
-        setCurrentUser(user);
-      }
-    };
+    // notificationSound.play();
 
-    getUser();
-  }, []);
+    if (data.sender == receiverId) {
+      console.log("Recieved Message" + data);
 
-  let s = connectSocket(currentUserRef.current);
-
-  s.on("disconnect", () => {
-    console.log("socket disconnected");
-    connectSocket(currentUserRef.current);
-  });
-
-  // console.log("messaging user: " + receiverId);
-
-  const [allMessages, setAllMessages] = useState([]);
+      setAllMessages((prev) => [
+        ...prev,
+        { [receiverId]: data.userMessage, timestamp: data.timestamp },
+      ]);
+    }
+  };
 
   const fetchMessages = async () => {
     try {
@@ -113,6 +99,48 @@ export default function Index() {
     }
   };
 
+  useEffect(() => {
+    let s;
+
+    const getUser = async () => {
+      if (Platform.OS == "web") {
+        setCurrentUser(sessionStorage.getItem("user"));
+        currentUserRef.current = sessionStorage.getItem("user");
+      } else {
+        const user = await secureStore.getItemAsync("user");
+        currentUserRef.current = user;
+
+        setCurrentUser(user);
+      }
+
+      if (currentUserRef.current) {
+        fetchMessages();
+        socketRef.current = connectSocket(currentUserRef.current);
+        s = socketRef.current;
+
+        if (s) {
+          s.on("receiveMesssage", handleMessage);
+
+          s.on("disconnect", () => {
+            console.log("socket disconnected");
+          });
+
+          s.on("reconnect_attempt", () => {
+            console.log("reconnecting...");
+          });
+        }
+      }
+    };
+
+    getUser();
+
+    return () => {
+      socketRef.current?.off("receiveMesssage");
+    };
+  }, []);
+
+  // console.log("messaging user: " + receiverId);
+
   console.log(allMessages);
 
   const onRefresh = useCallback(() => {
@@ -122,34 +150,15 @@ export default function Index() {
     }, 2000);
   }, []);
 
-  useEffect(() => {
-    fetchMessages();
-
-    // const currentUser = getCurrentUser();
-
-    s.on("receiveMesssage", (data: string) => {
-      const notificationSound = new Audio("/notification.mp3");
-
-      notificationSound.play();
-
-      if (data.sender == receiverId) {
-        console.log("Recieved Message" + data);
-
-        setAllMessages((prev) => [
-          ...prev,
-          { [receiverId]: data.userMessage, timestamp: data.timestamp },
-        ]);
-      }
-    });
-  }, []);
-
   const sendMessage = () => {
     // console.log(userMessage, currentUser);
     // console.log(getCurrentUser());
 
-    s.emit("sendMessage", {
-      senderId: s.id, //Connected Client Id
-      sender: currentUser,
+    if (!userMessage.trim()) return;
+
+    socketRef.current?.emit("sendMessage", {
+      senderId: socketRef.current.id, //Connected Client Id
+      sender: currentUserRef.current,
       receiver: receiverId,
       userMessage: userMessage,
       timestamp: Date.now().toString(),
@@ -157,19 +166,23 @@ export default function Index() {
 
     setAllMessages((prev) => [
       ...prev,
-      { [currentUser]: userMessage, timestamp: Date.now().toString() },
+      {
+        [currentUserRef.current]: userMessage,
+        timestamp: Date.now().toString(),
+      },
     ]);
 
     setUserMessage("");
   };
 
   return (
-    <KeyboardAvoidingView>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
       <View
         style={{
-          padding: 8,
+          paddingHorizontal: 8,
           backgroundColor: "#E8F3DC",
-          height: height,
+          // height: height,
+          flex: 1,
         }}
       >
         {/* <Text
@@ -185,19 +198,27 @@ export default function Index() {
           style={{
             padding: 16,
             width: "100%",
-            height: height * 0.88,
+            // height: height * 0.88,
             backgroundColor: "#E8F3DC",
             // backgroundColor: "red",
             borderRadius: 20,
             display: "flex",
+            flex: 1,
             justifyContent: "space-between",
           }}
         >
           <ScrollView
+            // ref={(ref) => {
+            //   this.scrollView = ref;
+            // }}
+            // onContentSizeChange={() =>
+            //   this.scrollView.scrollToEnd({ animated: true })
+            // }
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
-            style={{ height: height * 70 }}
+            // style={{ height: height * 70 }}
+            style={{ flex: 1 }}
           >
             {allMessages?.length ? (
               allMessages.map((item, i) => {
@@ -215,7 +236,10 @@ export default function Index() {
                       alignSelf: item[receiverId] ? "flex-start" : "flex-end",
                     }}
                   >
-                    <Text> {item[receiverId] || item[currentUser]}</Text>
+                    <Text>
+                      {" "}
+                      {item[receiverId] || item[currentUserRef.current]}
+                    </Text>
                     <View
                       style={{
                         flex: 1,
@@ -239,12 +263,18 @@ export default function Index() {
 
           <View
             style={{
-              height: 30,
-              width: "100%",
-              marginBottom: 10,
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+
               display: "flex",
               flexDirection: "row",
-              justifyContent: "space-between",
+              // justifyContent: "space-between",
+              flex: 1,
+              width: width,
+              // backgroundColor: "red",
+              alignSelf: "center",
+              position: "fixed",
+              bottom: 12,
             }}
           >
             <TextInput
@@ -252,12 +282,14 @@ export default function Index() {
               value={userMessage}
               style={{
                 height: 48,
-                width: "95%",
+                flex: 1,
+                width: 400,
                 backgroundColor: "#fff",
                 borderRadius: 10,
                 // borderColor: "green",
                 // borderWidth: 1,
-                padding: 24,
+                paddingVertical: 5,
+                paddingHorizontal: 10,
               }}
             />
 
@@ -276,9 +308,10 @@ export default function Index() {
             <View
               style={{
                 height: 24,
-                width: 24,
 
                 marginLeft: 2,
+                width: 24,
+                flex: 1,
               }}
             >
               <Pressable

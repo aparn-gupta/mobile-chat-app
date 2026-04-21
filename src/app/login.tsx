@@ -21,7 +21,7 @@ export const serverName =
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState();
+  const [error, setError] = useState("");
 
   const router = useRouter();
 
@@ -31,6 +31,7 @@ const Login = () => {
 
   const handleRegister = async () => {
     if (!username || !password) {
+      setError("Username and password are required!");
       // alert("Username and Password are required");
     }
     try {
@@ -45,9 +46,8 @@ const Login = () => {
 
       const result = await res.json();
 
-      console.log(result);
-
       if (!res.ok) throw new Error("Login error");
+      console.log(result);
 
       connectSocket(username);
       setCurrentUser(username);
@@ -89,6 +89,7 @@ const Login = () => {
             alignItems: "center",
             height: height,
             width: width,
+            flex: 1,
           }}
         >
           <View
